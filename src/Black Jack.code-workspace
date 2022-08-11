@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../plugins/black-jack-service"
+		}
+	],
+	"settings": {}
+}
