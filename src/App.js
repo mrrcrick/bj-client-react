@@ -2,12 +2,14 @@ import logo from './logo.svg';
 import './App.css';
 import GameList from './GameList';
 import React, { useState, useRef, useEffect } from "react";
+import { getByPlaceholderText } from '@testing-library/react';
 
 
 
 
 
 function App() {
+
   const [ val, setVal ]               = useState("");
   const [ tab, setTab ]               = useState("CreateGame");
   const [ cnt, setCnt ]               = useState(0);
@@ -18,25 +20,18 @@ function App() {
   const [ token, setToken ]           = useState('');
   const [ playersGo, setPlayersGo ]   = useState('');
   const [ gameEvent, setGameEvent ]   = useState('');
+  const [ inGame, setInGame ]         = useState( false );
   const [ theName, setTheName ]       = useState('Name not set');
-//  let player             = {id: 0};
   let names              = [];
   let players_cards      = [];
   let hand               = [];
-  let game               = "";
-//  let token              = '';
-  //let game_id            = '';
   let submit_url         = '';
   let pick_up            = 0;
   let pick_up_url        = '';
   let current_card_suit  ='';
   let current_card_value = 0;
-  //let name = "Not set";
-
-// set the name
-//let setTheName = function( plname ){
-//  name = plname;
-//}
+  let gettoken = '';
+  let intervalId  = '';
 
 // get the name
 let getTheName = function(){
@@ -50,11 +45,13 @@ let setTheGameId = function( id ){
 }
 
 function setCardSuit( e ){
+
   let newSuit = e.target.value;
   let ind     = e.target.getAttribute("index");
   let pl = player;
   pl.cards[ ind ].suit = newSuit;
   setPlayer( pl );
+
 }
 // suit drop down GameList
 function SuitDropDown( value, ind ) {
@@ -161,7 +158,7 @@ function removeCardFromHand( e ) {
 
 function submitHand(){
   //  hand = [];
-    let submit_url = 'game_id=' + game_id + '&player_id=' + player.id + '&turn_token=' + token;
+    let submit_url = 'game_id=' + getGameID() + '&player_id=' + getPlayerId() + '&turn_token=' + token;
     playerHand.map( function( h, i ){
       submit_url += '&hand[]=' + h.accesskey ;
       if ( h.value == 1 ){
@@ -228,27 +225,56 @@ function generateCardImageLink( card ){
     return cardfile;
 }
 
+// get the player id if not set use local storage 
+  let getPlayerId = ()=> {
+
+    let playerID = '';
+    if (typeof player.id === "undefined" || player.id === null) {
+      playerID = sessionStorage.getItem("playerID");
+    } else {
+      playerID = player.id ;
+    }
+    return playerID;
+
+  }
+// get the game id if not set use local storage 
+  let getGameID = ()=> {
+
+    let gameID = '';
+    if (typeof game_id === "undefined" || game_id === null) {
+      gameID = sessionStorage.getItem("gameID");
+    } else {
+      gameID = game_id ;
+    }
+    return gameID;
 
 
+  }
 
 // get the game token process
   let getGameToken = ( playerid, gameid )=> {
-    console.log( " ply id " + player.id + " game id " + game_id )
-    let gettoken = window.setInterval( function(){
-      fetch('http://127.0.0.1:8080/wp-json/black-jack/v1/getplayertoken/?id=' + playerid + '&game_id=' + gameid ).then( response => response.json() )
-      .then( data =>{ //console.log( data );
-      //  document.querySelector('#token').value = data ;
-        let token = data;
-        console.log( 'the token is ' + token );
-          console.log( " ply id " + player.id + " game id " + game_id )
-          setToken( token );
-        //console.log( data );
-      }).catch(
-          error => {
-            throw(error);
-          });
-
-        }
+    console.log( " ply id " + player.id + " game id " + game_id );
+    console.log( "token type is " + typeof( token + "length : ") + token.length );
+    gettoken = window.setInterval( function(){
+      if( token.length === 0 ) {
+        fetch('http://127.0.0.1:8080/wp-json/black-jack/v1/getplayertoken/?id=' + playerid + '&game_id=' + gameid ).then( response => response.json() )
+        .then( data =>{ //console.log( data );
+        //  document.querySelector('#token').value = data ;
+          let token = data;
+          console.log( 'the token is ' + token );
+          console.log( "token type is " + typeof( token + "length : ") + token.length );
+            console.log( " ply id " + player.id + " game_id " + game_id )
+            setToken( token );
+          //console.log( data );
+        }).catch(
+            error => {
+              throw(error);
+            });
+      } else {
+        console.log("we have a token ");
+        gettoken = token;
+      }
+    }
       , 1000);
       return gettoken;
 
@@ -256,37 +282,40 @@ function generateCardImageLink( card ){
 
 // get the game update proccess
 let updateTheGame = function( game_id , playerId ) {
-  let intervalId = window.setInterval( function(){
-    fetch('http://127.0.0.1:8080/wp-json/black-jack/v1/getgameupdate/?game_id=' + game_id + '&player_id=' + playerId ).then( response => response.json() )
-    .then( data =>{ //console.log( data );
-      let deck_card = JSON.parse( data );
+  intervalId = window.setInterval( function(){
+    if( token.length === 0  ) {
+      fetch('http://127.0.0.1:8080/wp-json/black-jack/v1/getgameupdate/?game_id=' + game_id + '&player_id=' + playerId ).then( response => response.json() )
+      .then( data =>{ //console.log( data );
+        let deck_card = JSON.parse( data );
 
-        setDeckCard( deck_card );
+          setDeckCard( deck_card );
 
-        //console.log( deck_card );
-        console.log( deck_card.current_player );
-        console.log("  Player id "+ playerId );
-        console.log( deck_card.current_player_name  );
-        if ( playerId == deck_card.current_player ){
-          //console.log("+++++++++++++++++++++YOUR TURN !!!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-          setPlayersGo('Your turn');
-          setGameEvent( "your turn !!! " + deck_card.event );
-        } else {
-          setPlayersGo( deck_card.current_player_name );
-          setGameEvent( deck_card.event );
-        }
-        console.log( "~~~~~~~ " + playersGo + ' turn ~~~~~~~~~~~~~~~');
-        console.log( deck_card.names );
-        names = deck_card.names;
-        console.log("set the deck card ---------------------------------");
-        console.log( "The EVENT : " + deck_card.event );
+          //console.log( deck_card );
+          //console.log( deck_card.current_player );
+          //console.log("  Player id "+ playerId );
+          //console.log( deck_card.current_player_name  );
+          if ( playerId == deck_card.current_player ){
+            //console.log("+++++++++++++++++++++YOUR TURN !!!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+            setPlayersGo('Your turn');
+            setGameEvent( "your turn !!! " + deck_card.event );
+          } else {
+            setPlayersGo( deck_card.current_player_name );
+            setGameEvent( deck_card.event );
+          }
+          console.log( "~~~~~~~ " + playersGo + ' turn ~~~~~~~~~~~~~~~');
+          console.log( deck_card.names );
+          names = deck_card.names;
+          console.log("set the deck card ---------------------------------");
+          console.log( "The EVENT : " + deck_card.event );
 
-        let cardObject ={ value: deck_card.current_value, suit: deck_card.current_suit , accesskey: '00'};
+          let cardObject ={ value: deck_card.current_value, suit: deck_card.current_suit , accesskey: '00'};
 
-  }).catch(
-      error => {
-        throw(error);
-      });}
+    }).catch(
+        error => {
+          throw(error);
+        })
+    } ;
+  }
     , 5000);
 
 
@@ -305,6 +334,7 @@ let updateTheGame = function( game_id , playerId ) {
        console.log( data );
        setPlayer( data[1] );
        setPlayerHand( [] );
+       setToken('');
     }).catch(
         error => {
           throw(error);
@@ -371,7 +401,7 @@ let updateTheGame = function( game_id , playerId ) {
 
             <div className="game-tab join-game" style= { { display: ( 'JoinGame' == tab ) ? 'block' : 'none' } }>
 
-              <GameList getTheName={ getTheName } setTheName={ setTheName } setPlayer={ setPlayer } update={ updateTheGame } setgameId={setTheGameId} getToken = { getGameToken }/>
+              <GameList getTheName={ getTheName } setTheName={ setTheName } setPlayer={ setPlayer } update={ updateTheGame } setgameId={setTheGameId} getToken = { getGameToken } inGame = { setInGame } />
 
             </div>
 
@@ -382,7 +412,7 @@ let updateTheGame = function( game_id , playerId ) {
                   <Event className="game-event"/>
                 </div>
                   <p>PLAYERS: { deckCard.names.map( ( n, i ) => {
-                        if ( deckCard.player_index ==  i ){
+                        if ( deckCard.current_player_name == n ){
                           return ( <span className ="current-player-playing" >  {n} </span> )
                         } else {
                           return n + " "
@@ -394,7 +424,7 @@ let updateTheGame = function( game_id , playerId ) {
 
 
                 </div>
-                <div className="deckCard"><CardOnDeck/> </div>
+                <div className="deck-card-window"><CardOnDeck/> </div>
                 <button onClick={ pickUpCard }> Pick Up { deckCard.pickup }</button>
                 <button onClick={ submitHand }> Submit Hand </button>
                 <div className="playerHand">

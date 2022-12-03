@@ -17,6 +17,7 @@ function GameList( props ) {
   let tf = props.fn;
   let getName = props.getTheName;
   let setThName = props.setTheName;
+  let inGame = props.inGame;
   let game = props.join;
 
   const testg                  = ['a','b','c','d','e'];
@@ -52,14 +53,7 @@ function GameList( props ) {
 
   }
   useEffect(() => {
-    //let getgames = getGameList( "w" );
-    //alert( "Use effect " + props.getTheName() );
-    //games.map( (e)=> { console.log('**')} );
-  //  if ( getgames !== games ){
-       // console.log( games );
-      //  setGames( getgames );
-       // console.log("games updated !!!! ");
-//   }
+
 
   }, []);
   let chsetShowPlayerId = ( e ) =>{
@@ -68,19 +62,20 @@ function GameList( props ) {
   };
   let chsetShowGameId   = ( e ) =>{
     setShowGameId( e.target.checked );
-    //showPlayerId = !showPlayerId;
-    //console.log( showGameId );
+
   };
 
 
   let setGamePlayerId   = ( e ) =>{
     setPlayerId(e.target.value);
     console.log( playerId );
+    sessionStorage.setItem("playerID", playerId);
   };
 
   let setGameId   = ( e ) =>{
     gameId = e.target.value ;
     console.log( gameId );
+    sessionStorage.setItem("gameID", gameId);
   };
 
 
@@ -88,32 +83,25 @@ function GameList( props ) {
 
   //join games
   let JoinGame = ( e ) =>{
-    //props.setTheName( name );
+    
     let namebx = document.getElementById("name-box").value;
-
-    //alert( "JOIN Game the name is : " + namebx );
-    //console.log( nameBox.current.focus()  );
-    //console.log("JOIN GAME " + props.getTheName() );
-    //console.log('++++++ : ' + playerId )
     let get_player_url ='';
     if( playerId ) {
       get_player_url = 'http://127.0.0.1:8080/wp-json/black-jack/v1/getplayer/?player_id=' + playerId +'&game_id=' + e.target.id ;
     } else {
-      //alert('_______ NAME for add player = ' + props.getTheName() );
       get_player_url = 'http://127.0.0.1:8080/wp-json/black-jack/v1/addplayer/?game_id=' + e.target.id  + '&player_name=' + namebx;
     }
     fetch( get_player_url ).then( response => response.json())
     .then( data =>{
-      //console.log( data );
       let playerData = JSON.parse( data );
-      //setPlayerId(playerData.id);
-     // console.log( '=========================== ' + playerData.id );
+      inGame( true );
       props.setPlayer( playerData );
       setPlayerId( playerData.id );
       props.update( e.target.id , playerData.id );
       props.setgameId( e.target.id );
       token = props.getToken;
       token( playerData.id, e.target.id );
+      
   })
 
 
