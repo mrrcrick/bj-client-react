@@ -418,13 +418,21 @@ let updateTheGame = function( game_id , playerId ) {
                           return n + " "
                         }
                       }) }</p>
-                  <p>PICK UP VALUE: { deckCard.pickup } </p>
-                  <p>NAME: { player.name }</p>
-                  <p>PLAYING: { playersGo } </p>
-
+                  <div className="play-area"> 
+                    <div className="play-area-col1">
+                      <div className='deck-info'>
+                        <p>PICK UP VALUE: { deckCard.pickup } </p>
+                        <p>NAME: { player.name }</p>
+                        <p>PLAYING: { playersGo } </p>
+                      </div>
+                    </div>
+                    <div className="play-area-col2">
+                    <div className="deck-card-window"><CardOnDeck/> </div>
+                    </div>
+                  </div>
 
                 </div>
-                <div className="deck-card-window"><CardOnDeck/> </div>
+                
                 <button onClick={ pickUpCard }> Pick Up { deckCard.pickup }</button>
                 <button onClick={ submitHand }> Submit Hand </button>
                 <div className="playerHand">
@@ -462,6 +470,11 @@ let updateTheGame = function( game_id , playerId ) {
                       }
 
                   </div>
+
+                </div>
+                <div className='chat-area'>
+                  <input type='text'/>
+                  <button> Send Message </button>
 
                 </div>
              </div>

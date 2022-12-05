@@ -34,8 +34,7 @@
 }
 
 .game-tab {
-  display: grid;
-  grid-template-columns: 100%;
+  
   width: 100%;
 
 }
@@ -160,12 +159,10 @@
 
 .game-wrapper {
   position: relative;
-  display: grid;
 }
 
 .deck-card-window {
   position: relative;
-  left:25%;
   height:300px;
   width: 205px;
 
@@ -218,4 +215,35 @@
   border-bottom: 5px solid red;
   margin-right: 10px;
   width: 50px;
+} 
+
+.play-area {
+ display: inline-block;
+ position: relative;
+ height: 305px;
+ width: 100%;
+}
+
+.play-area-col1{
+  display: inline-block;
+  width: 200px;
+  height: 150px;
+  
+}
+.play-area-col2 {
+  display: inline-block;
+  width: 300px;
+  
+}
+.deck-info {
+  position: absolute;
+  top:0;
+}
+
+.chat-area {
+ 
+}
+
+.chat-area input, .chat-area button {
+  display: block;
 }
