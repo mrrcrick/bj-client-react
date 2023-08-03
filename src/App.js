@@ -10,9 +10,7 @@ import { getByPlaceholderText } from '@testing-library/react';
 
 function App() {
 
-  const [ val, setVal ]               = useState("");
   const [ tab, setTab ]               = useState("CreateGame");
-  const [ cnt, setCnt ]               = useState(0);
   const [ player, setPlayer ]         = useState({ cards:[],id: '', name:'' });
   const [ game_id, setGame_id ]       = useState('');
   const [ deckCard, setDeckCard ]     = useState( { current_suit:'', current_value:0, names: [], player_index: 0 } );
@@ -274,20 +272,7 @@ function generateCardImageLink( card ){
     return cardfile;
 }
 
-// get the player id if not set use local storage 
-  let getPlayerId = ()=> {
 
-    let playerID = player.id ;
-    if (typeof  player.id === "undefined" ||  player.id  === null || player.id  =='') {
-      playerID = document.getElementById("player-id").value;
-    }
-    playerID = document.getElementById("player-id").value;
-    if (typeof  playerID=== "undefined" ||  playerID === null || playerID =='') {
-      playerID = sessionStorage.getItem("playerID");
-    }
-    return playerID;
-
-  }
 // get the game id if not set use local storage 
   let getGameID = ()=> {
 
@@ -351,7 +336,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
           //console.log("  Player id "+ playerId );
           //console.log( deck_card.current_player_name  );
           console.log('******************************');
-          if ( playerName.trim() == deck_card.current_player_name.trim() ){
+          if ( ( playerName.trim() == deck_card.current_player_name.trim() )  && ( playerId == deck_card.current_player ) ){
             //console.log("+++++++++++++++++++++YOUR TURN !!!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
             setPlayersGo('Your turn');
             setGameEvent( "your turn !!! " + deck_card.event );
@@ -383,7 +368,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
 
   let Event = function () {
     return (<div>
-      { player.id } { gameEvent }
+      { player.name } { gameEvent }
     </div> );
   }
   let pickUpCard = function() {
@@ -454,7 +439,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
         throw(error);
       });
   }
-  //let resetGame = resetTheGame.bind(this);
+  
   return (
 
         <div className="game-window">
@@ -501,6 +486,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
                       }) }</p>
                   <div className="play-area"> 
                     <div className="play-area-cards-played">
+                      <div className="last-player-to-play"> { ( deckCard.last_player_name ) ? deckCard.last_player_name :'' } </div>
 
 
                       { Array.isArray( deckCard.cards_played ) && deckCard.cards_played.map(
@@ -522,7 +508,6 @@ let updateTheGame = function( game_id , playerId, playerName ) {
                       <div className='deck-info'>
                         <p>PICK UP VALUE: { deckCard.pickup } </p>
                         <p>NAME: { ( theName ) ? theName : 'cant_find_name ' }</p>
-                        <p>PLAYING: { playersGo } </p>
                       </div>
                     </div>
                     <div className="play-area-col2">

@@ -90,7 +90,7 @@ function GameList( props ) {
     setTheName( namebx ); 
     let get_player_url ='';
 
-    get_player_url = 'http://192.168.1.218:8080/wp-json/black-jack/v1/addplayer/?game_id=' + e.target.id  + '&player_name=' + getName;
+    get_player_url = 'http://192.168.1.218:8080/wp-json/black-jack/v1/addplayer/?game_id=' + e.target.id  + '&player_name=' + namebx;
 
     fetch( get_player_url ).then( response => response.json())
     .then( data =>{
