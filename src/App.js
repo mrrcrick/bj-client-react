@@ -332,19 +332,23 @@ let updateTheGame = function( game_id , playerId, playerName ) {
           setDeckCard( deck_card );
           console.log('******************************');
           console.log( playerName );
+          console.log(player.name);
           console.log( deck_card.current_player_name );
+          console.log( deck_card.players_card_count );
           //console.log("  Player id "+ playerId );
           //console.log( deck_card.current_player_name  );
           console.log('******************************');
-          if ( ( playerName.trim() == deck_card.current_player_name.trim() )  && ( playerId == deck_card.current_player ) ){
-            //console.log("+++++++++++++++++++++YOUR TURN !!!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-            setPlayersGo('Your turn');
-            setGameEvent( "your turn !!! " + deck_card.event );
-            document.title = "Your turn";
-          } else {
-            setPlayersGo( deck_card.current_player_name.trim() );
-            setGameEvent( deck_card.event );
-            document.title = "Waiting .. ";
+          if ( ( (playerId) && (playerName) ) ) {
+            if ( ( playerName.trim() == deck_card.current_player_name.trim() )  && ( playerId == deck_card.current_player ) ){
+              //console.log("+++++++++++++++++++++YOUR TURN !!!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+              setPlayersGo('Your turn');
+              setGameEvent( "your turn !!! " + deck_card.event );
+              document.title = "Your turn";
+            } else {
+              setPlayersGo( deck_card.current_player_name.trim() );
+              setGameEvent( deck_card.event );
+              document.title = "Waiting .. ";
+            }
           }
           //console.log( "~~~~~~~ " + playersGo + ' turn ~~~~~~~~~~~~~~~');
           //console.log( deck_card.names );
@@ -352,7 +356,6 @@ let updateTheGame = function( game_id , playerId, playerName ) {
           //console.log("set the deck card ---------------------------------");
           //console.log( "The EVENT : " + deck_card.event );
 
-          let cardObject ={ value: deck_card.current_value, suit: deck_card.current_suit , accesskey: '00'};
 
     }).catch(
         error => {
@@ -477,16 +480,16 @@ let updateTheGame = function( game_id , playerId, playerName ) {
                 <div className="message">
                   <Event className="game-event"/>
                 </div>
-                  <p>PLAYERS: { deckCard.names.map( ( n, i ) => {
+                  <div className='players-cards'>PLAYERS: { deckCard.names.map( ( n, i ) => {
                         if ( deckCard.current_player_name == n ){
-                          return ( <span className ="current-player-playing" key={ i }>  {n} </span> )
+                          return (<div className='other-players-info' key={ i } > <div className ="current-player-playing" key={ i }>  { n + " " } <div className='card-count' key={ i } > {deckCard.players_card_count[n.trim()] } </div> </div></div> )
                         } else {
-                          return n + " "
+                          return ( <div className='other-players-info' key={ i } > { n + " " } <div className='card-count' key={ i }> { deckCard.players_card_count[n.trim()] } </div>  </div> ) 
                         }
-                      }) }</p>
+                      }) }</div>
                   <div className="play-area"> 
                     <div className="play-area-cards-played">
-                      <div className="last-player-to-play"> { ( deckCard.last_player_name ) ? deckCard.last_player_name :'' } </div>
+                      <div className="last-player-to-play"> { ( deckCard.last_player_name ) ? deckCard.last_player_name :'' } put down : </div>
 
 
                       { Array.isArray( deckCard.cards_played ) && deckCard.cards_played.map(
