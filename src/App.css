@@ -36,37 +36,46 @@
     border-radius: 25px;
     font-family: Verdana,sans-serif;
     position: relative;
+  }
     
     .game-modal {
-      display: none;
-    }
-    .game-modal.active {
-
-      position: absolute;
+      
       height: 100%;
       width: 100%;
+      position: absolute;
       background-color: rgba(0, 0, 0, 0.8);
       z-index: 5;
+      display: none;
+ 
+    }
+    .game-modal.active { 
       display: block;
-      
-
-      .text-area {
-        position: relative;
-        margin: 25%;
-        margin-top: 10%;
-        height: 300px;
-        background-color: grey;
-        opacity: 1;
-        color: white;
-      }
-
-      .text-area button {
-        display: block;
-        margin: auto;
-      }
     }
 
-  }
+    .text-area {
+      position: relative;
+      margin: 25%;
+      margin-top: 10%;
+      height: 300px;
+      background-color: grey;
+      opacity: 1;
+      color: white;
+      font-size: 16px;
+      overflow: auto;
+      padding: 10px;
+     
+    }
+
+    .text-area button {
+      display: block;
+      margin: auto;
+      margin-top: 20px;
+      width: 40%;
+      height: 30%;
+      font-size: 22px;
+    }
+
+  
 
   .game button {
       background-color:rgba(5,37,23,0.2);
@@ -203,7 +212,7 @@
 .playerHand {
   margin-top: 15px;
   min-height: 100px;
-  overflow: scroll;
+  overflow: auto;
   max-height: 115px;
   margin-bottom: 15px;
   border-top: 2px solid white;
@@ -318,7 +327,9 @@
 
 .players-cards {
   width: 100%;
-  overflow: scroll;
+  overflow: auto;
 }
+
+
 
 
