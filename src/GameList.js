@@ -9,43 +9,29 @@ function GameList( props ) {
   const [showGameId, setShowGameId] = useState(false);
   const nameBox = useRef(null);
 
-  //let playerId ='';
+ 
   let gameId    ='';
-  let id        ='';
   let token     ='';
   let setInGame = props.setInGame ;
-
-  //let tf = props.fn;
-  let getName = props.getTheName;
   let setTheName = props.setTheName;
   let inGame = props.inGame;
-  //let game = props.join;
-  let gameEvent   =  props.gameEvents;
   let setGameEvent =   props.setGameEvents;
   let setGameModal = props.setGameModal;
 
-  //const testg                  = ['a','b','c','d','e'];
-  //let name                     = props.getTheName() ;
-//  let showPlayerId, showGameId = false;
-  //let games = '';
- // let setName = ( e ) => {
-  //  name = e.target.value ;
-    //console.log( name );
-  //}
+
   let showGamesAvailable =() => {
     setGames([]);
     getGameList();
-    //setGames( games );
+    
   }
   let getGameList = () => {
     if ( games.length < 1 ) {
-    // alert( "refresh data name  outside is is " + nam  );
+  
       fetch('http://192.168.1.218:8080/wp-json/black-jack/v1/get_game_list/').then( response => response.json())
       .then( data =>{ console.log( data );
         setGames( data );
-        //alert( "refresh data name is " + nam );
-        //setThName( nam);
         return data;
+
       }
       );
 
@@ -54,8 +40,9 @@ function GameList( props ) {
 
 
   let chsetShowPlayerId = ( e ) =>{
+
     setShowPlayerId( e.target.checked ) ;
-    //console.log( showPlayerId );
+  
   };
   let chsetShowGameId   = ( e ) =>{
     setShowGameId( e.target.checked );
@@ -75,12 +62,7 @@ function GameList( props ) {
     sessionStorage.setItem("gameID", gameId);
   };
 
-  let resetGame = ( e ) => {
-      gameEvent.map( (evt) => {
-        clearInterval(evt);
-      })
-    
-  }
+
 
   //join games
   let JoinGame = ( e ) =>{
@@ -94,26 +76,19 @@ function GameList( props ) {
 
     fetch( get_player_url ).then( response => response.json())
     .then( data =>{
-     // console.log( data );
       if ( ! data.error ){ 
 
-      
-     //   console.group("Join Game data");
-      //  console.log(data);
         let obj = typeof data === 'object'; 
-      //  console.log(obj);
-      //  console.groupEnd("Join Game data");
         let playerData = data ;
         if ( ! obj ) {
           playerData = JSON.parse( playerData  );
         }
-        //let playerData = JSON.parse( data );
-        inGame( true );
         
-        props.setPlayer( playerData );
+        inGame( true );
+         props.setPlayer( playerData );
         setPlayerId( playerId );
+        
         // set the name given from server 
-        //alert( playerData.name );
         setTheName( playerData.name );
         eventsarr.push( props.update( e.target.id , playerData.id, playerData.name   ) );
         props.setgameId( e.target.id );
