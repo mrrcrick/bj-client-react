@@ -13,7 +13,7 @@ function App() {
   const [ tab, setTab ]               = useState("CreateGame");
   const [ player, setPlayer ]         = useState({ cards:[],id: '', name:'' });
   const [ game_id, setGame_id ]       = useState('');
-  const [ deckCard, setDeckCard ]     = useState( { current_suit:'', current_value:0, names: [], player_index: 0 } );
+  const [ game, setGame ]             = useState( { current_suit:'', current_value:0, names: [], player_index: 0 } );
   const [ playerHand, setPlayerHand ] = useState([]);
   const [ token, setToken ]           = useState('');
   const [ playersGo, setPlayersGo ]   = useState('');
@@ -59,7 +59,7 @@ let resetTheGame = function(){
   //setVal = useState("");
   setPlayer({ cards:[],id: player.id, name: player.name });
   setGame_id ('');
-  setDeckCard( { current_suit:'', current_value:0, names: [], player_index: 0 } );
+  setGame( { current_suit:'', current_value:0, names: [], player_index: 0 } );
   setPlayerHand([]);
   setToken('');
   setPlayersGo('');
@@ -78,7 +78,7 @@ let turnOffModal = ()=> {
 }
 
 var testdeckcard = () => {
-  console.log('*** cards played array ' + JSON.stringify( deckCard.cards_played ) ) ;
+  console.log('*** cards played array ' + JSON.stringify( game.cards_played ) ) ;
 }
 
 function setCardSuit( e ){
@@ -107,23 +107,23 @@ function CardOnDeck(){
    //console.log("++++++ " + deckCard + " ++++++++++++++")
     let cardfile ='';
 
-    if ( deckCard.current_value > 1 && deckCard.current_value < 10 ){
-      cardfile = deckCard.current_value + deckCard.current_suit ;
+    if ( game.current_value > 1 && game.current_value < 10 ){
+      cardfile = game.current_value + game.current_suit ;
     }
-    if ( deckCard.current_value == 1 ){
-      cardfile = 'A' + deckCard.current_suit;
+    if ( game.current_value == 1 ){
+      cardfile = 'A' + game.current_suit;
     }
-    if ( deckCard.current_value == 10 ){
-      cardfile = 'T' + deckCard.current_suit ;
+    if ( game.current_value == 10 ){
+      cardfile = 'T' + game.current_suit ;
     }
-    if ( deckCard.current_value == 11 ){
-      cardfile = 'J' + deckCard.current_suit ;
+    if ( game.current_value == 11 ){
+      cardfile = 'J' + game.current_suit ;
     }
-    if ( deckCard.current_value == 12 ){
-      cardfile = 'Q' + deckCard.current_suit  ;
+    if ( game.current_value == 12 ){
+      cardfile = 'Q' + game.current_suit  ;
     }
-    if ( deckCard.current_value == 13 ){
-      cardfile = 'K' + deckCard.current_suit ;
+    if ( game.current_value == 13 ){
+      cardfile = 'K' + game.current_suit ;
     }
     if ( cardfile ) {
       cardfile = 'cards/' + cardfile + '.gif';
@@ -329,7 +329,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
         //console.groupEnd("Token data =====");
           //console.log(deck_card);
           //debugger;
-          setDeckCard( deck_card );
+          setGame( deck_card );
           console.log('******************************');
           console.log( playerName );
           console.log(player.name);
@@ -338,7 +338,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
           //console.log("  Player id "+ playerId );
           //console.log( deck_card.current_player_name  );
           console.log('******************************');
-          if ( ( (playerId) && (playerName) ) ) {
+          if ( ( (playerId) && (playerName) && ( deck_card.current_player_name ) ) ) {
             if ( ( playerName.trim() == deck_card.current_player_name.trim() )  && ( playerId == deck_card.current_player ) ){
               //console.log("+++++++++++++++++++++YOUR TURN !!!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
               setPlayersGo('Your turn');
@@ -480,19 +480,19 @@ let updateTheGame = function( game_id , playerId, playerName ) {
                 <div className="message">
                   <Event className="game-event"/>
                 </div>
-                  <div className='players-cards'>PLAYERS: { deckCard.names.map( ( n, i ) => {
-                        if ( deckCard.current_player_name == n ){
-                          return (<div className='other-players-info' key={ i } > <div className ="current-player-playing" key={ i }>  { n + " " } <div className='card-count' key={ i } > {deckCard.players_card_count[n.trim()] } </div> </div></div> )
+                  <div className='players-cards'>PLAYERS: { game.names.map( ( n, i ) => {
+                        if ( game.current_player_name == n ){
+                          return (<div className='other-players-info' key={ i } > <div className ="current-player-playing" key={ i }>  { n + " " } <div className='card-count' key={ i } > {game.players_card_count[n.trim()] } </div> </div></div> )
                         } else {
-                          return ( <div className='other-players-info' key={ i } > { n + " " } <div className='card-count' key={ i }> { deckCard.players_card_count[n.trim()] } </div>  </div> ) 
+                          return ( <div className='other-players-info' key={ i } > { n + " " } <div className='card-count' key={ i }> { game.players_card_count[n.trim()] } </div>  </div> ) 
                         }
                       }) }</div>
                   <div className="play-area"> 
                     <div className="play-area-cards-played">
-                      <div className="last-player-to-play"> { ( deckCard.last_player_name ) ? deckCard.last_player_name :'' } put down : </div>
+                      <div className="last-player-to-play"> { ( game.last_player_name ) ? game.last_player_name :'' } put down : </div>
 
 
-                      { Array.isArray( deckCard.cards_played ) && deckCard.cards_played.map(
+                      { Array.isArray( game.cards_played ) && game.cards_played.map(
                       function( card ) {
                         if ( card ){
                         return(
@@ -509,7 +509,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
 
                     <div className="play-area-col1">
                       <div className='deck-info'>
-                        <p>PICK UP VALUE: { deckCard.pickup } </p>
+                        <p>PICK UP VALUE: { game.pickup } </p>
                         <p>NAME: { ( theName ) ? theName : 'cant_find_name ' }</p>
                       </div>
                     </div>
@@ -520,7 +520,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
 
                 </div>
                 
-                <button onClick={ pickUpCard } className={ ( playersGo == 'Your turn' ? 'active' : '') } > Pick Up { deckCard.pickup }</button>
+                <button onClick={ pickUpCard } className={ ( playersGo == 'Your turn' ? 'active' : '') } > Pick Up { game.pickup }</button>
                 <button onClick={ submitHand } className={ ( playersGo == 'Your turn' ? 'active' : '') } > Submit Hand </button>
 
                 <button onClick={ togglelastCard } className={ ( lastCards > 0 ? playersGo == 'Your turn' ? 'active lastcard': 'lastcard' : playersGo == 'Your turn' ? 'active' : '' )   } > Last Card  </button>

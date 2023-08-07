@@ -256,8 +256,14 @@
 
 .current-player-playing .card-count{
   border-bottom: 5px solid red;
- 
+  padding: 0;
+   
 } 
+
+.current-player-playing {
+  padding: 0;
+  width: 30px;
+}
 
 .play-area {
  display: inline-block;
@@ -307,12 +313,13 @@
 .other-players-info {
   display: inline-block;
   max-width: 240px ;
+  min-width: 30px ;
   margin-right: 5px;
+  padding: 0;
 }
 
 .card-count {
   height: 35px;
-  width: 35px;
   background-color: yellow;
   background: url('./card-back.jpg');
   background-repeat: no-repeat;
@@ -320,7 +327,6 @@
   color: rgba(5,37,23,4);
   font-weight: bold;
   padding-left: 4px;
-  padding-top: 10px;
   
 
 }
@@ -329,7 +335,4 @@
   width: 100%;
   overflow: auto;
 }
-
-
-
 
