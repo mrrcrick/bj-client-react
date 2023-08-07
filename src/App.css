@@ -257,12 +257,13 @@
 .current-player-playing .card-count{
   border-bottom: 5px solid red;
   padding: 0;
+  width: 30px;
    
 } 
 
 .current-player-playing {
   padding: 0;
-  width: 30px;
+  
 }
 
 .play-area {
