@@ -23,6 +23,7 @@ function App() {
   const [ lastCards, setLastCards ]   = useState(0);
   const [ gameEvents, setGameEvents]  = useState([]);
   const [ gameModal, setGameModal]    = useState({ on: false , message:'' } );
+  const domain = 'http://127.0.0.1:8080/';
 
 
   let pick_up_url        = '';
@@ -220,7 +221,7 @@ function submitHand(){
 
       });
       console.log("the submit URL: " + submit_url);
-        fetch('http://192.168.1.218:8080/wp-json/black-jack/v1/submithand/?' + submit_url ).
+        fetch( domain + 'wp-json/black-jack/v1/submithand/?' + submit_url ).
         then( response => response.json()).then( data => {
           console.log( data );
           if ( data[1] == player.id){
@@ -294,7 +295,7 @@ function generateCardImageLink( card ){
   
     gettoken = window.setInterval( function(){
   
-        fetch('http://192.168.1.218:8080/wp-json/black-jack/v1/getplayertoken/?id=' + playerid + '&game_id=' + gameid ).then( response => response.json() )
+        fetch(domain + 'wp-json/black-jack/v1/getplayertoken/?id=' + playerid + '&game_id=' + gameid ).then( response => response.json() )
         .then( data =>{ //console.log( data );
         //  document.querySelector('#token').value = data ;
           let token = data;
@@ -319,7 +320,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
   //clearInterval( intervalId );
   intervalId = window.setInterval( function(){
     if( token.length == 0  ) {
-      fetch('http://192.168.1.218:8080/wp-json/black-jack/v1/getgameupdate/?game_id=' + game_id + '&player_id=' + playerId ).then( response => response.json() )
+      fetch(domain + 'wp-json/black-jack/v1/getgameupdate/?game_id=' + game_id + '&player_id=' + playerId ).then( response => response.json() )
       .then( data =>{ //console.log( data );
         let deck_card = JSON.parse( data );
         //console.group("Token data =====");
@@ -381,7 +382,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
     else {
       console.log('==== PICK UP CARD ========== PLAYER ID ' + player.id );
       pick_up_url = 'game_id=' + game_id + '&player_id=' + player.id + '&last_card=' + lastCards + '&turn_token=' + token;
-      fetch('http://192.168.1.218:8080/wp-json/black-jack/v1/pickupcard?' + pick_up_url ).
+      fetch( domain + 'wp-json/black-jack/v1/pickupcard?' + pick_up_url ).
       then( response => response.json()).then( data => {
         console.log( data );
         setPlayer( data[1] );
@@ -415,7 +416,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
   }
 
   let getGameList = () => {
-    fetch('http://192.168.1.218:8080/wp-json/black-jack/v1/get_game_list/').then( response => response.json())
+    fetch(domain + 'wp-json/black-jack/v1/get_game_list/').then( response => response.json())
     .then( data =>{ console.log( data );
       return data;
     }
@@ -427,7 +428,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
   }
 
   let creategame = ()=> {
-    fetch('http://192.168.1.218:8080/wp-json/black-jack/v1/creategame/').then( response => response.json())
+    fetch( domain + 'wp-json/black-jack/v1/creategame/?create'+ Math.floor(Math.random() * 10 ) ).then( response => response.json())
     .then( data =>{ console.log( data );
       if ( data.hasOwnProperty('error') ) {
         message = ( data.error );
@@ -480,7 +481,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
                 <div className="message">
                   <Event className="game-event"/>
                 </div>
-                  <div className='players-cards'>PLAYERS: { game.names.map( ( n, i ) => {
+                  <div className='players-cards'>{ console.log( 'game ' + game.names  ) } PLAYERS: { ( ! typeof game.names  === undefined ) && game.names.map( ( n, i ) => {
                         if ( game.current_player_name == n ){
                           return (<div className='other-players-info' key={ i } > <div className ="current-player-playing" key={ i }>  { n + " " } <div className='card-count' key={ i } > {game.players_card_count[n.trim()] } </div> </div></div> )
                         } else {
@@ -492,7 +493,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
                       <div className="last-player-to-play"> { ( game.last_player_name ) ? game.last_player_name :'' } put down : </div>
 
 
-                      { Array.isArray( game.cards_played ) && game.cards_played.map(
+                      { (typeof game.cards_played != "undefined") &&  Array.isArray( game.cards_played ) && game.cards_played.map(
                       function( card ) {
                         if ( card ){
                         return(
@@ -525,7 +526,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
 
                 <button onClick={ togglelastCard } className={ ( lastCards > 0 ? playersGo == 'Your turn' ? 'active lastcard': 'lastcard' : playersGo == 'Your turn' ? 'active' : '' )   } > Last Card  </button>
                 <div className="playerHand">
-                  { Array.isArray( playerHand ) && playerHand.map(
+                  { (typeof playerHand != "undefined") && Array.isArray( playerHand ) && playerHand.map(
                     function( card ) {
                       if ( card ){
                       return(
@@ -543,7 +544,7 @@ let updateTheGame = function( game_id , playerId, playerName ) {
                 </div>
                 <div>
                   <div className="cards">
-                    {  Array.isArray( player.cards ) &&  player.cards.map(
+                    { ( player != null ) && Array.isArray( player.cards ) &&  player.cards.map(
                         function( card, ind ) {
                           return(
                           <div className="cardHolder" key={ card.accesskey } id={ 'ch' + card.accesskey }>

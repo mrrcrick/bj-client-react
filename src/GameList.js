@@ -8,6 +8,7 @@ function GameList( props ) {
   const [playerId, setPlayerId] = useState('');
   const [showGameId, setShowGameId] = useState(false);
   const nameBox = useRef(null);
+  const domain = 'http://127.0.0.1:8080/';
 
   //let playerId ='';
   let gameId    ='';
@@ -24,16 +25,16 @@ function GameList( props ) {
 
   }
   let getGameList = () => {
-    if ( games.length < 1 ) {
+    //if ( games.length < 1 ) {
 
-      fetch('http://192.168.1.218:8080/wp-json/black-jack/v1/get_game_list/').then( response => response.json())
+      fetch( domain + 'wp-json/black-jack/v1/get_game_list/?load'+ Math.floor(Math.random() * 10 ) ).then( response => response.json())
       .then( data =>{ console.log( data );
         setGames( data );
         return data;
       }
       );
 
-    }
+  //  }
   }
 
 
@@ -69,10 +70,19 @@ function GameList( props ) {
     setTheName( namebx ); 
     let get_player_url ='';
 
-    get_player_url = 'http://192.168.1.218:8080/wp-json/black-jack/v1/addplayer/?game_id=' + e.target.id  + '&player_name=' + namebx;
+    get_player_url = domain + 'wp-json/black-jack/v1/addplayer/?game_id=' + e.target.id  + '&player_name=' + namebx;
 
     fetch( get_player_url ).then( response => response.json())
     .then( data =>{
+      //data = JSON.parse( data );
+      //console.log( '** JOIN DATA : ' + data.error );
+      let obj = typeof data === 'object'; 
+      //let playerData = data ;
+      if ( ! obj ) {
+
+          data = JSON.parse( data  );
+
+      }
 
       if ( ! data.error ){ 
 
