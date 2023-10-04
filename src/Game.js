@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 
 function Game() {
   const [ games, setGames ] = useState(['']);
-  const testg = ['a','b','c','d','e'];
+  
 
   return (
     <div className="bj-game-list">

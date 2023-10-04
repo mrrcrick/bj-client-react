@@ -1,4 +1,6 @@
-
+body{
+  overflow-y: hidden;
+}
 
 .game-overlay {
   height:100%;
@@ -17,8 +19,9 @@
 }
 
 .game-tab {
-  
+  height: 150%;
   width: 100%;
+  overflow-y: scroll;
 
 }
   .create-game div{
@@ -44,7 +47,7 @@
       width: 100%;
       position: absolute;
       background-color: rgba(0, 0, 0, 0.8);
-      z-index: 5;
+      z-index: 10;
       display: none;
  
     }
@@ -97,7 +100,7 @@
 
   .game-tab {
     display:block;
-    height:300px;
+    height:150%;
     color:white;
   }
 
@@ -117,7 +120,6 @@
 
  .game {
    display:none;
-   height: 100%;
    overflow: hidden;
    border-top: none;
    background-color: green;
@@ -166,16 +168,27 @@
 }
 .bj-game-list .list-data {
   overflow-y: auto;
-  max-height: 150px;
+  max-height: 550px;
 }
 .bj-game-list .user-input .info {
   margin-left: 5px;
+}
+.findGames {
+  width: 70%;
+  min-height: 50px;
+  font-size: 20px;
+  margin-left: 15%;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 .bj-game-list .list-data p:first-of-type {
   border-top: 1px solid green;
 }
 .bj-game-list .list-data p {
   font-size: 11pt;
+  height: 70px;
+  font-size: 18px;
+  margin-bottom: 5px;
   padding: 5px;
   margin: 0px;
   border-bottom: 1px solid green;
@@ -195,6 +208,7 @@
 
 .game-wrapper {
   position: relative;
+  height: auto;
 }
 
 .deck-card-window {
@@ -249,9 +263,10 @@
   padding-top: 25%;
 }
 .view {
+  height: 100vh;
+  overflow-y: scroll;
+  padding-bottom: 20px;
 
-  height: 800px;
-  overflow-y: hidden;
 }
 
 .current-player-playing .card-count{
@@ -336,4 +351,57 @@
   width: 100%;
   overflow: auto;
 }
+.pickup, .submit,.lastCard {
+  margin-right: 10px;
+  margin-left: 10px;
+  height: 60px;
+  margin-top: 10px;
+  min-width: 100px;
+}
 
+.event-modal {
+  position: absolute;
+  height: 1px;
+  width: 1px;
+  margin-top: 20%;
+  font-size: 60px;
+  color: rgb(255, 0, 13);
+  text-shadow: 4px 4px #000000;
+  font-weight: 1000;
+  z-index: 6;
+  animation: blinker 4s linear infinite;
+  display: none;
+}
+@keyframes blinker {
+  70% {
+    opacity: 0;
+  }
+}
+
+.event-modal.show {
+  width: 100%;
+  height: 30%;
+  margin-top: 20px;
+  display: block;
+}
+.chat-button{
+  display: block;
+  width: 30%;
+  margin-left: 15%;
+  margin-right: 15%;
+  margin-top: 10px;
+  height: 50px;
+}
+
+#chat-window {
+  display: block;
+  width: 50%;
+  margin-left: 15%;
+  margin-right: 15%;
+  margin-top: 10px;
+  height: 30px;
+
+}
+.chat {
+ /* display: none; ~*/
+}

@@ -1,8 +1,8 @@
 import logo from './logo.svg';
 import './App.css';
 import GameList from './GameList';
-import React, { useState, useRef, useEffect } from "react";
-import { getByPlaceholderText } from '@testing-library/react';
+import React, { useState, useEffect,useRef } from "react";
+
 
 
 
@@ -18,17 +18,23 @@ function App() {
   const [ token, setToken ]           = useState('');
   const [ playersGo, setPlayersGo ]   = useState('');
   const [ gameEvent, setGameEvent ]   = useState('');
+  const [ showGameEve, setShowGameEve ] = useState( true );
   const [ inGame, setInGame ]         = useState( false );
   const [ theName, setTheName ]       = useState('');
   const [ lastCards, setLastCards ]   = useState(0);
   const [ gameEvents, setGameEvents]  = useState([]);
   const [ gameModal, setGameModal]    = useState({ on: false , message:'' } );
+  const updateTime                    = 2000;
+  const chatWindow                    = useRef(null);
+  const chatWindowOutput              = useRef(null);
   const domain = 'http://127.0.0.1:8080/';
+  //const domain                        = 'https://uk-blackjack.com/';
 
 
   let pick_up_url        = '';
   let gettoken = '';
   let intervalId  = '';
+  let gamemsgserviceID ='';
   let message = '';
   let hasWon = false;
 // reset the game if not in game
@@ -51,6 +57,7 @@ let getTheName = function(){
 // set the game id
 let setTheGameId = function( id ){
  setGame_id( id );
+ chatWindow.current.setAttribute('gameid', id );
 
 }
 
@@ -139,6 +146,7 @@ function CardOnDeck(){
 }
 
 function togglelastCard() {
+  turnOffEvent();
   let islastCard = 0;
   if ( lastCards == 0 ) {
     islastCard = 1;
@@ -149,6 +157,7 @@ function togglelastCard() {
 }
 
 function addCardToHand( e ) {
+  turnOffEvent();
 //  console.log('[ ' + e.target.getAttribute("suit") + ']');
   let value       = e.target.getAttribute("value") ;
   let suit        = e.target.getAttribute("suit") ;
@@ -206,6 +215,7 @@ function removeCardFromHand( e ) {
 
 function submitHand(){
   //  hand = [];
+  turnOffEvent();
   console.log('TOKEN ' +  token );
   if ( ! token ) {
     setGameModal({on: true, message: "Not your turn to play "});
@@ -234,7 +244,6 @@ function submitHand(){
             setToken('');
         }
         if ( data[2] == 'invalid' ){
-          //alert( data[3] );
           setGameModal({on:true, message: data[3]});
         }
         setLastCards( 0 );
@@ -309,17 +318,66 @@ function generateCardImageLink( card ){
               throw(error);
             });
     }
-      , 100);
+      , 1000 );
      //(setGameEvents(  gameEvents.push( gettoken ) ) );
       return gettoken;
 
   };
 
+
+
+
+// get game message chat 
+let getMsgChat = function() {
+  //alert("GAME CHAT SERVICE");
+  console.log("======GET CHAT MESSAGES !!!");
+  chatWindow.current.setAttribute('msgid' , '0' );
+  chatWindowOutput.current.innerHTML = '';
+
+
+  gamemsgserviceID = window.setInterval( function(){
+    let getmsgURL = domain + 'wp-json/black-jack/v1/getmessages/?game_id=' + chatWindow.current.getAttribute('gameid') + '&last_msg_recieved=' + chatWindow.current.getAttribute('msgid')
+    console.log( getmsgURL );
+    fetch( getmsgURL ).
+    then( response => response.json() )
+    .then( data =>{
+      //data = JSON.parse( data );
+      //console.log(" Messages DATA !!! fromfetch " + data );
+      if (( data ) && ( data.length > 0 ) ) {
+
+        console.log('!!! Messages ' + data );
+        let msgtext = chatWindowOutput.current.innerHTML ;
+        chatWindow.current.setAttribute('msgid' , data[0].ID );
+        data.forEach( ( msg ) => {
+          msgtext += '<p><b>' + msg.message + '</b></p>';
+          return 1;
+
+        } );
+          //alert( msgtext);
+          chatWindowOutput.current.innerHTML = msgtext;
+
+      }
+
+
+  }).catch(
+      error => {
+        throw(error);
+      })
+  
+  }
+  , updateTime );
+
+  //setGameEvents(  gameEvents.push( intervalId ) ) ;
+  return intervalId;
+
+}
 // get the game update proccess
 let updateTheGame = function( game_id , playerId, playerName ) {
+  console.log("====UPDATE STARTED=== !!! " + 'game id ' +  game_id + ' Playerid ' + playerId + ' Player name ' + playerName );
   //clearInterval( intervalId );
+  let eventID = 0 ;
   intervalId = window.setInterval( function(){
-    if( token.length == 0  ) {
+
       fetch(domain + 'wp-json/black-jack/v1/getgameupdate/?game_id=' + game_id + '&player_id=' + playerId ).then( response => response.json() )
       .then( data =>{ //console.log( data );
         let deck_card = JSON.parse( data );
@@ -339,15 +397,27 @@ let updateTheGame = function( game_id , playerId, playerName ) {
           //console.log("  Player id "+ playerId );
           //console.log( deck_card.current_player_name  );
           console.log('******************************');
-          if ( ( (playerId) && (playerName) && ( deck_card.current_player_name ) ) ) {
-            if ( ( playerName.trim() == deck_card.current_player_name.trim() )  && ( playerId == deck_card.current_player ) ){
+          //console.log( 'events ' + eventID + 'vs ShowGameEve' + deck_card.event_id );
+
+          if ( deck_card.event_id != eventID ) {
+            //console.log("TURNING on game event ");
+             setShowGameEve(true);
+             setGameEvent( deck_card.event );
+             eventID = deck_card.event_id ;
+             //eventshoW();
+            }
+          if ( ( (playerId) && (playerName) && ( deck_card.current_player) ) ) {
+            if ( ( playerId == deck_card.current_player ) ){
               //console.log("+++++++++++++++++++++YOUR TURN !!!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
               setPlayersGo('Your turn');
-              setGameEvent( "your turn !!! " + deck_card.event );
+              //eventshow();
+              //setShowGameEve(true);
+              setGameEvent( "YOUR TURN !!! " + deck_card.event );
               document.title = "Your turn";
             } else {
               setPlayersGo( deck_card.current_player_name.trim() );
-              setGameEvent( deck_card.event );
+              
+
               document.title = "Waiting .. ";
             }
           }
@@ -362,25 +432,28 @@ let updateTheGame = function( game_id , playerId, playerName ) {
         error => {
           throw(error);
         })
-    } ;
+    
   }
-    , 4000);
+    , updateTime );
 
     //setGameEvents(  gameEvents.push( intervalId ) ) ;
     return intervalId;
 }
 
+
+
   let Event = function () {
-    return (<div>
-      { player.name } { gameEvent }
+    return (<div  onClick={ turnOffEvent } onBlur={ turnOffEvent } className={ ( showGameEve ) ? 'game-event event-modal show' :'' } >
+       { gameEvent }
     </div> );
   }
   let pickUpCard = function() {
+    turnOffEvent();
     if ( ! token ) {
       setGameModal({on: true, message: "Not your turn to play "});
     }
     else {
-      console.log('==== PICK UP CARD ========== PLAYER ID ' + player.id );
+      //console.log('==== PICK UP CARD ========== PLAYER ID ' + player.id );
       pick_up_url = 'game_id=' + game_id + '&player_id=' + player.id + '&last_card=' + lastCards + '&turn_token=' + token;
       fetch( domain + 'wp-json/black-jack/v1/pickupcard?' + pick_up_url ).
       then( response => response.json()).then( data => {
@@ -437,20 +510,37 @@ let updateTheGame = function( game_id , playerId, playerName ) {
         message = ('Game created with ID: ' + data.session_id );
       }
       setGameModal({ on: true, message: message });
+    
+
     }
   ).catch(
       error => {
         throw(error);
       });
   }
-  
-  return (
+  let turnOffEvent = ()=>{ setShowGameEve( false ); }
+  let sendChat =() =>{ 
 
+    fetch(domain + 'wp-json/black-jack/v1/addmessage/?game_id=' + chatWindow.current.getAttribute('gameid') + '&msg=' + chatWindow.current.value ).
+    then( response => response.json() )
+    .then( data =>{ 
+      chatWindow.current.setAttribute('msgid', data );
+      chatWindowOutput.current.innerHTML =  chatWindowOutput.current.innerHTML + chatWindow.current.value;
+      chatWindow.current.value = '';
+        }).catch(
+        error => {
+          throw(error);
+        });
+
+
+  }
+  return (
+        
         <div className="game-window">
         <div className={ ( gameModal.on ) ? "game-modal active" : "game-modal" }  >
           <div className='text-area'>
             { gameModal.message }
-            <button onClick={ turnOffModal }>OK</button>
+            <button onClick={ turnOffModal } >OK</button>
           </div>
         </div>
         <div className="tab">
@@ -471,17 +561,17 @@ let updateTheGame = function( game_id , playerId, playerName ) {
             <div className="game-tab join-game" style= { { display: ( 'JoinGame' == tab ) ? 'block' : 'none' } }>
 
               <GameList getTheName={ theName } setTheName={ setTheName } setPlayer={ setPlayer } update={ updateTheGame } setgameId={setTheGameId} getToken = { getGameToken } inGame = { setInGame }
-              gameEvents={ gameEvents } setGameEvents={ setGameEvents }  setInGame={ setInGame } setGameModal={setGameModal}/>
+              gameEvents={ gameEvents } setGameEvents={ setGameEvents }  setInGame={ setInGame } setGameModal={setGameModal} getmsgchat = { getMsgChat }/>
 
             </div>
 
             <div className="game-tab game" style= { { display: ( 'Game' == tab ) ? 'block' : 'none' } }>
-              <div className="game-wrapper">
+              <div className="game-wrapper" >
 
                 <div className="message">
-                  <Event className="game-event"/>
+                  <Event/>
                 </div>
-                  <div className='players-cards'>{ console.log( 'game ' + game.names  ) } PLAYERS: { ( ! typeof game.names  === undefined ) && game.names.map( ( n, i ) => {
+                  <div className='players-cards'>{ console.log( 'game ' + game.names  ) } PLAYERS: {  game.names.map( ( n, i ) => {
                         if ( game.current_player_name == n ){
                           return (<div className='other-players-info' key={ i } > <div className ="current-player-playing" key={ i }>  { n + " " } <div className='card-count' key={ i } > {game.players_card_count[n.trim()] } </div> </div></div> )
                         } else {
@@ -521,11 +611,11 @@ let updateTheGame = function( game_id , playerId, playerName ) {
 
                 </div>
                 
-                <button onClick={ pickUpCard } className={ ( playersGo == 'Your turn' ? 'active' : '') } > Pick Up { game.pickup }</button>
-                <button onClick={ submitHand } className={ ( playersGo == 'Your turn' ? 'active' : '') } > Submit Hand </button>
+                <button onClick={ pickUpCard } className={ "pickup " + ( playersGo == 'Your turn' ? 'active' : '') } > Pick Up { game.pickup }</button>
+                <button onClick={ submitHand } className={ "submit " + ( playersGo == 'Your turn' ? 'active' : '') } > Submit Hand </button>
 
-                <button onClick={ togglelastCard } className={ ( lastCards > 0 ? playersGo == 'Your turn' ? 'active lastcard': 'lastcard' : playersGo == 'Your turn' ? 'active' : '' )   } > Last Card  </button>
-                <div className="playerHand">
+                <button onClick={ togglelastCard } className={ "lastCard " + ( lastCards > 0 ? playersGo == 'Your turn' ? 'active lastcard': 'lastcard' : playersGo == 'Your turn' ? 'active' : '' )   } > Last Card  </button>
+                <div onClick={ turnOffEvent } className="playerHand">
                   { (typeof playerHand != "undefined") && Array.isArray( playerHand ) && playerHand.map(
                     function( card ) {
                       if ( card ){
@@ -558,6 +648,17 @@ let updateTheGame = function( game_id , playerId, playerName ) {
                         } )
                       }
 
+                  </div>
+
+                </div>
+                <div className='chat'>
+                  <div>
+                    <h1>Text Chat</h1>
+                    <div id='chat-window-output' type='text' ref={ chatWindowOutput } ></div>
+                  </div>
+                  <div>
+                    <input id='chat-window' type="text" msgid='0'ref={ chatWindow } gameid='0'></input>
+                    <button onClick={ sendChat } className='chat-button active'>SEND</button>
                   </div>
 
                 </div>

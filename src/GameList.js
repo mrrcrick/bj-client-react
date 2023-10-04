@@ -5,10 +5,11 @@ import React, { useState, useRef } from "react";
 function GameList( props ) {
   const [ games, setGames ]    = useState([]);
   const [showPlayerId, setShowPlayerId] = useState(false);
-  const [playerId, setPlayerId] = useState('');
+  const [playerId, setPlayerId] = useState( sessionStorage.getItem("playerID") );
   const [showGameId, setShowGameId] = useState(false);
   const nameBox = useRef(null);
   const domain = 'http://127.0.0.1:8080/';
+  //const domain = 'https://uk-blackjack.com/';
 
   //let playerId ='';
   let gameId    ='';
@@ -71,19 +72,14 @@ function GameList( props ) {
     let get_player_url ='';
 
     get_player_url = domain + 'wp-json/black-jack/v1/addplayer/?game_id=' + e.target.id  + '&player_name=' + namebx;
-
-    fetch( get_player_url ).then( response => response.json())
+    if( playerId ) {
+      get_player_url = domain + 'wp-json/black-jack/v1/getplayer/?player_id=' + playerId +'&game_id=' + e.target.id ;
+    } 
+   
+    fetch( get_player_url ).then( response => response.json() )
     .then( data =>{
-      //data = JSON.parse( data );
-      //console.log( '** JOIN DATA : ' + data.error );
-      let obj = typeof data === 'object'; 
-      //let playerData = data ;
-      if ( ! obj ) {
-
-          data = JSON.parse( data  );
-
-      }
-
+      console.log( 'Player data ' + data );
+  
       if ( ! data.error ){ 
 
         let obj = typeof data === 'object'; 
@@ -93,23 +89,57 @@ function GameList( props ) {
           playerData = JSON.parse( playerData  );
 
         }
-        
+       // console.dir( '>>>> ' + JSON. tringify( playerData ) );
         inGame( true );
         props.setPlayer( playerData );
-        setPlayerId( playerId );
+        setPlayerId( playerData.id );
+        sessionStorage.setItem("playerID", playerData.id );
         setTheName( playerData.name );
         eventsarr.push( props.update( e.target.id , playerData.id, playerData.name   ) );
         props.setgameId( e.target.id );
         token = props.getToken;
         let tokenInt = token( playerData.id , e.target.id );
         eventsarr.push(tokenInt);
+        eventsarr.push( props.getmsgchat() );
+        console.log( '==event array ' + eventsarr );
         setGameEvent( eventsarr );
         var startGameButton = document.getElementById("start-game-button");
         startGameButton.click();
       
     } else {
+      if ( data.error.includes('Can not Find player in this game session')) {
+        // redundent need to rewrite this split this into another function 
+        get_player_url = domain + 'wp-json/black-jack/v1/addplayer/?game_id=' + e.target.id  + '&player_name=' + namebx;
+        fetch( get_player_url ).then( response => response.json() )
+        .then( data =>{ 
 
-      setGameModal( {on: true, message: data } );
+            let obj = typeof data === 'object'; 
+            let playerData = data ;
+            if ( ! obj ) {
+    
+              playerData = JSON.parse( playerData  );
+    
+            }
+           // console.dir( '>>>> ' + JSON. tringify( playerData ) );
+            inGame( true );
+            props.setPlayer( playerData );
+            setPlayerId( playerData.id );
+            sessionStorage.setItem("playerID", playerData.id );
+            setTheName( playerData.name );
+            eventsarr.push( props.update( e.target.id , playerData.id, playerData.name   ) );
+            props.setgameId( e.target.id );
+            token = props.getToken;
+            let tokenInt = token( playerData.id , e.target.id );
+            eventsarr.push(tokenInt);
+            eventsarr.push(props.getmsgchat() );
+            setGameEvent( eventsarr );
+            var startGameButton = document.getElementById("start-game-button");
+            startGameButton.click();
+            // remove this
+        });
+
+      }
+     // setGameModal( {on: true, message: data.error } );
 
     }
       
@@ -127,10 +157,10 @@ function GameList( props ) {
         <p><input onClick={ chsetShowPlayerId } type="checkbox"></input> Enter a player ID <label>Player ID </label><input id='player-id' onChange = { setGamePlayerId } type="text" style={ { display: ( showPlayerId )? 'inline-block' : 'none' } } value={ playerId }/><span className ="info">&#x1F6C8;</span></p>
         <p><input onClick={ chsetShowGameId } type="checkbox"></input> Enter a game ID <label>Game ID </label><input onChange = { setGameId } type="text" style={ { display: ( showGameId )? 'inline-block' : 'none' } }/><button style={ {display:( showGameId )? 'inline-block' : 'none' } }> Join </button><span className ="info">&#x1F6C8;</span></p>
       </div>
+      <div> <button className='findGames' onClick = { showGamesAvailable }> Find new games !! </button></div>
         <div className="list-data">
         { (games !== false) && games.map((e , i) => (<p onClick={ JoinGame } style={ { color:'white'}} key={ i } id={ e.game_id } > Game ID: { e.game_id } Game status: { e.status } Current number of players: { e.players_in_game } Players: { e.players } </p>) )}
        </div>
-      <div> <button onClick = { showGamesAvailable }> Find new games !! </button></div>
     </div>
   );
 }
